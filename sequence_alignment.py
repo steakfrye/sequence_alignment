@@ -1,52 +1,78 @@
-##### Adapted from Hirschberg's algorithm on https://en.wikipedia.org/wiki/Hirschberg%27s_algorithm ####
+##### Adapted from Hirschberg's algorithm on https://en.wikipedia.org/wiki/Hirschberg%27s_algorithm #####
 
-sequence1 = AGTACGCA
-sequence2 = TATGC
+sequence1 = "AGTACGCA"
+sequence2 = "TATGC"
 
-def NWScore(sequence1, sequence2):
-    Score(0,0) = 0
+grid = None
 
-    for j = 1 to length(sequence2):
-        Score(0, j) = Score(0, j - 1) + Ins(sequence2[j])
+# Placeholder functions in case developer would like to change to complex score system.
+def ins(y):
+    return -2
 
-    for i = 1 to length(sequence1):
-        Score(i, 0) = Score(i - 1,0) + Del(sequence1[i])
+def delete(x):
+    return -2
 
-        for j = 1 to length(sequence2):
-            sub_score = Score(i - 1,j - 1) + (sequence1[i] - sequence2[j])
-            del_score = Score(i - 1, j) + Del(sequence1[i])
-            ins_score = Score( i, j - 1) + Ins(sequence2[j])
-            Score(i, j) = max(sub_score, del_score, ins_score)
+def sub(x, y):
+    if x == y:
+        return 2
+    else:
+        return -1
 
-        for j = 0 to length(sequence2):
-         LastLine(j) = Score(length(sequence1),j)
+def create_grid(sequence1, sequence2):
+    grid = [["" for row in range(len(sequence2))]
+                for column in range(len(sequence1))]
+
+    return grid
+
+def score(x, y):
+    return grid[x][y]
+
+def nw_score(sequence1, sequence2):
+    score(0, 0) = 0
+
+    for j in range(len(sequence2)):
+        score(0, j) = score(0, j) + ins(sequence2[j])
+
+    for i in range(len(sequence1)):
+        score(i, 0) = score(i, 0) + delete(sequence1[i])
+
+        for j in range(len(sequence2)):
+            sub_score = score(i, j) + sub(sequence1[i], sequence2[j])
+            delete_score = score(i, j + 1) + delete(sequence1[i])
+            ins_score = score(i + 1, j) + ins(sequence2[j])
+            score(i, j) = max(sub_score, delete_score, ins_score)
+
+        for j in range(len(sequence2)):
+         last_line(j + 1) = score(len(sequence1), j + 1)
         return LastLine
 
-def Hirschberg(sequence1, sequence2):
+def hirschberg(sequence1, sequence2):
     Z = ""
     W = ""
-    if length(sequence1) == 0:
-        for i = 1 to length(sequence2):
-            Z = Z + '-'
-            W = W + sequence2i
+    if len(sequence1) == 0:
+        for i in range(len(sequence2)):
+            Z += '-'
+            W += sequence2[i + 1]
 
-    else if length(sequence2) == 0:
-        for i = 1 to length(sequence1):
-            Z = Z + sequence1[i]
-            W = W + '-'
+    elif len(sequence2) == 0:
+        for i in range(len(sequence1)):
+            Z += sequence1[i + 1]
+            W += '-'
 
-    else if length(sequence1) == 1 or length(sequence2) == 1:
-        (Z, W) = NeedlemanWunsch(sequence1, sequence2)
+    elif len(sequence1) == 1 or len(sequence2) == 1:
+        (Z, W) = needleman_wunsch(sequence1, sequence2)
 
     else:
-        sequence1_len = length(sequence1)
-        sequence1_mid = length(sequence1)/2
-        sequence2_len = length(sequence2)
+        sequence1_len = len(sequence1)
+        sequence1_mid = len(sequence1)/2
+        sequence2_len = len(sequence2)
 
-    ScoreL = NWScore(sequence11:sequence1_mid, sequence2)
-    ScoreR = NWScore(rev(Xxmid+1:sequencelen), rev(sequence2))
-    sequence2_mid = arg max ScoreL + rev(ScoreR)
+    score_l = nw_score(sequence1[1:sequence1_mid], sequence2)
+    score_r = nw_score(rev(sequence1[sequence1_mid+1:sequence1_len]), rev(sequence2))
+    sequence2_mid = max(score_l + rev(score_r))
 
-    (Z, W) = Hirschberg(sequence1:xmid, sequence21:sequence2mid) + Hirschberg(sequencexmid+1:xlen, sequence2sequence2mid+1:sequence2len)
+    (Z, W) = hirschberg(sequence1[1:sequence1_mid], sequence2[1:sequence2_mid]) + hirschberg(sequence1[sequence1_mid+1:xlen], sequence2[sequence2_mid+1:sequence2len])
 
     return (Z, W)
+
+print(score(sequence1, sequence2))
