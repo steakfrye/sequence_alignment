@@ -3,8 +3,6 @@
 sequence1 = "AGTACGCA"
 sequence2 = "TATGC"
 
-grid = None
-
 # Placeholder functions in case developer would like to change to complex score system.
 def ins(y):
     return -2
@@ -19,32 +17,35 @@ def sub(x, y):
         return -1
 
 def create_grid(sequence1, sequence2):
-    grid = [["" for row in range(len(sequence2))]
+    grid = [[0 for row in range(len(sequence2))]
                 for column in range(len(sequence1))]
 
     return grid
 
-def score(x, y):
-    return grid[x][y]
+grid = create_grid(sequence1, sequence2)
+
+def set_position(x, y, value):
+    del grid[x][y]
+    grid[x].insert(y, value)
 
 def nw_score(sequence1, sequence2):
-    score(0, 0) = 0
+    set_position(0, 0, 0)
 
     for j in range(len(sequence2)):
-        score(0, j) = score(0, j) + ins(sequence2[j])
+        set_position(0, j, ins(sequence2[j]))
 
     for i in range(len(sequence1)):
-        score(i, 0) = score(i, 0) + delete(sequence1[i])
+        set_position(i, 0, delete(sequence1[i]))
 
         for j in range(len(sequence2)):
-            sub_score = score(i, j) + sub(sequence1[i], sequence2[j])
-            delete_score = score(i, j + 1) + delete(sequence1[i])
-            ins_score = score(i + 1, j) + ins(sequence2[j])
-            score(i, j) = max(sub_score, delete_score, ins_score)
+            sub_score = grid[i][j] + sub(sequence1[i], sequence2[j])
+            delete_score = grid[i][j + 1] + delete(sequence1[i])
+            ins_score = grid[i + 1][j] + ins(sequence2[j])
+            set_position(i, j, max(sub_score, delete_score, ins_score))
 
         for j in range(len(sequence2)):
-         last_line(j + 1) = score(len(sequence1), j + 1)
-        return LastLine
+         last_line(j + 1) = set_position(len(sequence1), j + 1)
+        return last_line
 
 def hirschberg(sequence1, sequence2):
     Z = ""
@@ -75,4 +76,5 @@ def hirschberg(sequence1, sequence2):
 
     return (Z, W)
 
-print(score(sequence1, sequence2))
+
+print(grid)
